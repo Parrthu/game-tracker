@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: gametracker-backend
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-your-super-secret-key-change-in-production}
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///app/data/gametracker.db}
+      - STEAM_API_KEY=${STEAM_API_KEY:-}
+      - CORS_ORIGINS=["http://localhost"]
+    restart: unless-stopped
+    networks:
+      - gametracker-network
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: gametracker-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - gametracker-network
+
+networks:
+  gametracker-network:
+    driver: bridge
+
+volumes:
+  data:

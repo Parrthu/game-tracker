@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: gametracker-backend-dev
+    volumes:
+      - ../backend:/app
+      - ./data:/app/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - DEBUG=true
+      - DATABASE_URL=sqlite+aiosqlite:///app/data/gametracker.db
+      - STEAM_API_KEY=${STEAM_API_KEY:-}
+      - CORS_ORIGINS=["http://localhost:5173","http://localhost"]
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    networks:
+      - gametracker-network
+
+  frontend:
+    image: node:20-alpine
+    container_name: gametracker-frontend-dev
+    working_dir: /app
+    volumes:
+      - ../frontend:/app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8000
+    restart: unless-stopped
+    networks:
+      - gametracker-network
+
+networks:
+  gametracker-network:
+    driver: bridge
