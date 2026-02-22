@@ -14,3 +14,4 @@ EXPOSE 8000
 
 # 启动命令（直接运行，不需要 cd backend）
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
