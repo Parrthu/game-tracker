@@ -1,0 +1,15 @@
+[build]
+builder = "NIXPACKS"
+
+[build.nixpacks]
+# 明确指定这是 Python 项目
+nixpacks_version = "1.20.0"
+
+[build.nixpacks.plan.phases.setup]
+nix_pkgs = ["python311"]
+
+[build.nixpacks.plan.phases.install]
+cmds = ["cd backend && pip install -r requirements.txt"]
+
+[deploy]
+startCommand = "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
